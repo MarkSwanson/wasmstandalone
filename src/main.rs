@@ -124,7 +124,8 @@ fn handle_module(args: &Args, path: PathBuf, isa: &TargetIsa) -> Result<(), Stri
     let mut environ = ModuleEnvironment::new(isa.flags(), &mut module);
     translate_module(&data, &mut environ)?;
     let translation = environ.finish_translation();
-    let instance = match compile_module(isa, &translation) {
+    let imported_functions = Vec::new();
+    let instance = match compile_module(isa, &translation, &imported_functions) {
         Ok(compilation) => {
             let mut instance =
                 Instance::new(compilation.module, &translation.lazy.data_initializers);

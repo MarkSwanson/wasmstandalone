@@ -8,6 +8,7 @@ extern crate region;
 extern crate wasmstandalone_runtime;
 
 use cretonne::isa::TargetIsa;
+//use std::collections::Vec;
 use std::mem::transmute;
 use region::Protection;
 use region::protect;
@@ -18,6 +19,7 @@ use wasmstandalone_runtime::Compilation;
 pub fn compile_module<'data, 'module>(
     isa: &TargetIsa,
     translation: &wasmstandalone_runtime::ModuleTranslation<'data, 'module>,
+    imported_functions: &[u64],
 ) -> Result<wasmstandalone_runtime::Compilation<'module>, String> {
     debug_assert!(
         translation.module.start_func.is_none() ||
@@ -28,19 +30,35 @@ pub fn compile_module<'data, 'module>(
     let (mut compilation, relocations) = translation.compile(isa)?;
 
     // Apply relocations, now that we have virtual addresses for everything.
-    relocate(&mut compilation, &relocations);
+    relocate(&mut compilation, &relocations, &imported_functions);
 
     Ok(compilation)
 }
 
 /// Performs the relocations inside the function bytecode, provided the necessary metadata
-fn relocate(compilation: &mut Compilation, relocations: &wasmstandalone_runtime::Relocations) {
+// Imported Functions:
+// * target_func_address should be a pointer to the dlsym() result.
+// * compile_module will receive 'imported functions', which will be available here.
+// * the wasm function index space is defined to start with the imported functions, followed by the wasm-defined functions.
+// * because the function_relocs points to 2 tables, we must be sure to use the r.func_index
+//   property - because it spans imported functions and wasm functions.
+#[allow(ptr_arg)]
+fn relocate(compilation: &mut Compilation, relocations: &wasmstandalone_runtime::Relocations,
+            imported_functions: &[u64]) {
     // The relocations are relative to the relocation's address plus four bytes
     // TODO: Support architectures other than x64, and other reloc kinds.
     for (i, function_relocs) in relocations.iter().enumerate() {
-        for ref r in function_relocs {
-            let target_func_address: isize = compilation.functions[r.func_index].as_ptr() as isize;
-            let body = &mut compilation.functions[i];
+        for r in function_relocs {
+            let (target_func_address, body) = {
+                if r.func_index < imported_functions.len() {
+                    println!("i: {}, imported_functions index: {}", i, r.func_index);
+                    (imported_functions[r.func_index] as isize, &mut compilation.functions[i])
+                }
+                else {
+                    println!("i: {}, compilation.functions index: {}", i, imported_functions.len() - r.func_index);
+                    (compilation.functions[imported_functions.len() - r.func_index].as_ptr() as isize, &mut compilation.functions[i])
+                }
+            };
             unsafe {
                 let reloc_address = body.as_mut_ptr().offset(r.offset as isize + 4) as isize;
                 let reloc_addend = r.addend as isize;
