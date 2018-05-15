@@ -1,0 +1,10 @@
+#!/bin/bash
+
+mkdir -p tmp
+export TARGET="release"
+
+cargo build --release --target wasm32-unknown-unknown
+cp ../target/wasm32-unknown-unknown/${TARGET}/sip_test.wasm tmp
+wasm-objdump -xd tmp/sip_test.wasm
+RUST_BACKTRACE=1 ../target/debug/sip --wasm-file ./tmp/sip_test.wasm --proxy-lib ../target/debug/libproxylib.so --function call_test
+

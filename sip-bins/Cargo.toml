@@ -1,0 +1,28 @@
+[package]
+name = "sip_bins"
+version = "0.1.0"
+authors = ["Mark Swanson <maswanso@Akamai.com>"]
+
+[dependencies]
+clap = "2.31.2"
+os_bootinfo = "0.2.0"
+lazy_static = "1.0.0"
+slog = "*"
+slog-term = "*"
+slog-async = "*"
+slog-atomic = "*"
+nix = "*"
+libloading = "0.5"
+region = "0.1.1"
+
+cretonne-codegen = "0.8.0"
+cretonne-frontend = "0.8.0"
+cretonne-reader = "0.8.0"
+cretonne-wasm = "0.8.0"
+cretonne-native = "0.8.0"
+
+wasmstandalone_runtime = { path = "../lib/runtime" }
+wasmstandalone_execute = { path = "../lib/execute" }
+wasmstandalone_obj = { path = "../lib/obj" }
+
+

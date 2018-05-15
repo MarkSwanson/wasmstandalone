@@ -1,0 +1,12 @@
+[package]
+name = "proxylib"
+version = "0.1.0"
+authors = ["Mark Swanson <mark.swanson.sw@gmail.com>"]
+
+[dependencies]
+
+[lib]
+name = "proxylib"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+

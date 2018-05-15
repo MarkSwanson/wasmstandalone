@@ -1,0 +1,10 @@
+[package]
+name = "sip_test"
+version = "0.1.0"
+authors = ["Mark Swanson <mark.swanson.sw@gmail.com>"]
+
+[lib]
+name = "sip_test"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
