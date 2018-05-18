@@ -16,8 +16,9 @@ pub extern "C" fn start() {
 pub extern "C" fn test(n: i32) -> i32 {
     #[allow(unused_mut)]
     let answer = add(n, n);
-    let a = unsafe {call_test(1)};
+    let a = unsafe {call_test()};
     X - answer - a
+    //X - answer
 }
 
 

@@ -9,3 +9,5 @@ Cargo.lock
 cretonne.dbg*
 .mypy_cache
 rusty-tags.*
+core
+

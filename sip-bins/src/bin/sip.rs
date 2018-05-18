@@ -77,8 +77,8 @@ fn main() {
     println!("Compiling wasm file: {} and dynamically linking against proxy lib: {}", &wasm_file, &proxy_lib_file);
     let lib = libloading::Library::new(proxy_lib_file).unwrap();
     unsafe {
-        let func: libloading::Symbol<unsafe extern fn(i32) -> i32> = lib.get(b"call_test").unwrap();
-        func(1); // 
+        let func: libloading::Symbol<unsafe extern fn() -> i32> = lib.get(b"call_test").unwrap();
+        func(); // 
         println!("Successfully dynamically loaded and called call_test().");
     }
 
@@ -226,7 +226,7 @@ pub fn execute(
     //let start_index = compilation.module.start_func.ok_or_else(|| {
         //String::from("No start function defined, aborting execution")
     //})?;
-    let code_buf = &compilation.functions[fn_index];
+    let code_buf = &compilation.functions[fn_index - 1];
     match unsafe {
         protect(
             code_buf.as_ptr(),
@@ -250,8 +250,8 @@ pub fn execute(
     // the generated code.Thanks to this, we can transmute the code region into a first-class
     // Rust function and call it.
     unsafe {
-        let start_func = transmute::<_, fn(*const *mut u8)>(code_buf.as_ptr());
-        start_func(vmctx.as_ptr());
+        let func = transmute::<_, fn(*const *mut u8)>(code_buf.as_ptr());
+        func(vmctx.as_ptr());
     }
     Ok(())
 }
