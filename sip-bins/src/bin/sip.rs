@@ -226,6 +226,8 @@ pub fn execute(
     //let start_index = compilation.module.start_func.ok_or_else(|| {
         //String::from("No start function defined, aborting execution")
     //})?;
+    //let code_buf = &compilation.functions[0];
+    println!("fn_index: {}", fn_index);
     let code_buf = &compilation.functions[fn_index - 1];
     match unsafe {
         protect(
