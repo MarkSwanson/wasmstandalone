@@ -204,7 +204,7 @@ pub fn execute(
     //compilation.module.
     println!("compilation.module: {:#?}", &compilation.module);
     println!("compilation.functions: {:#?}", &compilation.functions);
-    let fn_index: usize = match compilation.module.exports.get(fn_name) {
+    let mut fn_index: usize = match compilation.module.exports.get(fn_name) {
         None => return Err(format!("Wasm did not define function: {}", fn_name)),
         Some(export) => {
             match export {
@@ -227,8 +227,9 @@ pub fn execute(
         //String::from("No start function defined, aborting execution")
     //})?;
     //let code_buf = &compilation.functions[0];
+    fn_index -= compilation.module.imported_funcs.len();
     println!("fn_index: {}", fn_index);
-    let code_buf = &compilation.functions[fn_index - 1];
+    let code_buf = &compilation.functions[fn_index];
     match unsafe {
         protect(
             code_buf.as_ptr(),

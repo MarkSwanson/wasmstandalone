@@ -49,6 +49,7 @@ fn relocate(compilation: &mut Compilation, relocations: &wasmstandalone_runtime:
     // TODO: Support architectures other than x64, and other reloc kinds.
     for (i, function_relocs) in relocations.iter().enumerate() {
         for ref r in function_relocs {
+            println!("r.func_index: {}, imported_functions.len: {}", r.func_index, imported_functions.len());
             let target_func_address: isize = compilation.functions[r.func_index].as_ptr() as isize;
             let body = &mut compilation.functions[i];
             match r.reloc {
