@@ -50,8 +50,19 @@ fn relocate(compilation: &mut Compilation, relocations: &wasmstandalone_runtime:
     for (i, function_relocs) in relocations.iter().enumerate() {
         for ref r in function_relocs {
             println!("r.func_index: {}, imported_functions.len: {}", r.func_index, imported_functions.len());
-            let target_func_address: isize = compilation.functions[r.func_index].as_ptr() as isize;
-            let body = &mut compilation.functions[i];
+            let (target_func_address, body) = {
+                if r.func_index < imported_functions.len() {
+                    println!("i: {}, imported_functions index: {}", i, r.func_index);
+                    (imported_functions[r.func_index] as isize, &mut compilation.functions[i])
+                }
+                else {
+                    println!("i: {}, compilation.functions index: {}", i, r.func_index - imported_functions.len());
+                    (compilation.functions[imported_functions.len() - r.func_index].as_ptr() as isize, &mut compilation.functions[i])
+                }
+            };
+
+            //let target_func_address: isize = compilation.functions[r.func_index].as_ptr() as isize;
+            //let body = &mut compilation.functions[i];
             match r.reloc {
                 Reloc::Abs8 => unsafe {
                     let reloc_address = body.as_mut_ptr().offset(r.offset as isize) as i64;
